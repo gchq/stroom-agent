@@ -5,7 +5,7 @@
     <artifactId>stroom-agent</artifactId>
     <name>stroom-agent</name>
     <description>STROOM AGENT</description>
-    <version>1.0.18-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
