@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+    <bean id="proxyProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+            <value>classpath:agent.properties</value>
+        </property>
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <property name="properties">
+            <value>
+                stroomAgentDir=${HOME}/stroom-agent
+            </value>
+        </property>
+        <property name="ignoreResourceNotFound" value="true" />
+    </bean>
+
+    <bean class="stroom.agent.main.StroomAgentConfig" />
+
+    <bean id="sftpGetHandlerZIP" class="stroom.agent.collect.SFTPGetHandlerZIP"/>
+
+    <!-- Files awaiting transmission are stored here -->
+    <bean class="stroom.agent.util.zip.StroomZipRepository">
+        <constructor-arg type="java.lang.String" value="${PWD}/target/agent-repo" />
+    </bean>
+
+    <bean id="localhostRef" class="stroom.agent.collect.SFTPTransfer">
+        <property name="host" value="localhost" />
+        <property name="user" value="myusername" />
+        <property name="knownHosts" value="${HOME}/.ssh/known_hosts" />
+        <property name="identity" value="${HOME}/.ssh/id_dsa" />
+    </bean>
+
+    <bean class="stroom.agent.collect.PullSFTPCollector">
+        <property name="feed" value="ACL-TXT-EVENTS" />
+        <property name="remoteDir" value="${PWD}/src/test/resources/test-data" />
+        <property name="remoteFile" value=".*X" />
+        <property name="maxExpectedMatches" value="" />
+        <property name="sftpTransfer" ref="localhostRef" />
+        <property name="delete" value="false" />
+    </bean>
+
+    <bean class="stroom.agent.dispatch.PushSFTPDispatcher">
+        <property name="sftpTransfer" ref="localhostRef" />
+        <property name="remoteDir" value="'${PWD}/target/agent-repo-remote/'yyyy-MM-dd'T'HH:mm:ss" />		
+        <property name="mkdir" value="true" />
+    </bean>
+
+</beans>
